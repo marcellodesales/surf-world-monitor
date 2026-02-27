@@ -3043,6 +3043,16 @@ export class DeckGLMap {
           { key: 'speciesRecovery', label: 'Species Recovery', icon: '&#128062;' },
           { key: 'renewableInstallations', label: 'Clean Energy', icon: '&#9889;' },
         ]
+      : SITE_VARIANT === 'surf'
+      ? [
+          { key: 'hotspots', label: t('components.deckgl.layers.intelHotspots'), icon: '&#127919;' },
+          { key: 'ais', label: t('components.deckgl.layers.shipTraffic'), icon: '&#128674;' },
+          { key: 'flights', label: t('components.deckgl.layers.flightDelays'), icon: '&#9992;' },
+          { key: 'climate', label: t('components.deckgl.layers.climateAnomalies'), icon: '&#127787;' },
+          { key: 'weather', label: t('components.deckgl.layers.weatherAlerts'), icon: '&#9928;' },
+          { key: 'natural', label: t('components.deckgl.layers.naturalEvents'), icon: '&#127755;' },
+          { key: 'waterways', label: t('components.deckgl.layers.strategicWaterways'), icon: '&#9875;' },
+        ]
       : [
         { key: 'hotspots', label: t('components.deckgl.layers.intelHotspots'), icon: '&#127919;' },
         { key: 'conflicts', label: t('components.deckgl.layers.conflictZones'), icon: '&#9876;' },

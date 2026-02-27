@@ -75,6 +75,13 @@ const TECH_LIVE_CHANNELS: LiveChannel[] = [
   { id: 'nasa', name: 'Sen Space Live', handle: '@NASA', fallbackVideoId: 'fO9e9jnhYK8', useFallbackOnly: true },
 ];
 
+
+// Surf variant: curated surf/beach live channels (top 2 stay in Live News)
+const SURF_LIVE_CHANNELS: LiveChannel[] = [
+  { id: 'woohoo-brazil', name: 'WooHoo Brazil', handle: '@woohoo-brazil', fallbackVideoId: 'd0v6ViPp1sw', useFallbackOnly: true },
+  { id: 'wsl-official', name: 'WSL Official', handle: '@wsl-official', fallbackVideoId: 'hm9iAviOZ20', useFallbackOnly: true },
+];
+
 // Optional channels users can add from the "Available Channels" tab UI
 export const OPTIONAL_LIVE_CHANNELS: LiveChannel[] = [
   // North America
@@ -136,7 +143,7 @@ export const OPTIONAL_CHANNEL_REGIONS: { key: string; labelKey: string; channelI
   { key: 'africa', labelKey: 'components.liveNews.regionAfrica', channelIds: ['africanews', 'channels-tv', 'ktn-news', 'enca', 'sabc-news'] },
 ];
 
-const DEFAULT_LIVE_CHANNELS = SITE_VARIANT === 'tech' ? TECH_LIVE_CHANNELS : SITE_VARIANT === 'happy' ? [] : FULL_LIVE_CHANNELS;
+const DEFAULT_LIVE_CHANNELS = SITE_VARIANT === 'surf' ? SURF_LIVE_CHANNELS : SITE_VARIANT === 'tech' ? TECH_LIVE_CHANNELS : SITE_VARIANT === 'happy' ? [] : FULL_LIVE_CHANNELS;
 
 /** Default channel list for the current variant (for restore in channel management). */
 export function getDefaultLiveChannels(): LiveChannel[] {
@@ -157,6 +164,7 @@ const DEFAULT_STORED: StoredLiveChannels = {
 export const BUILTIN_IDS = new Set([
   ...FULL_LIVE_CHANNELS.map((c) => c.id),
   ...TECH_LIVE_CHANNELS.map((c) => c.id),
+  ...SURF_LIVE_CHANNELS.map((c) => c.id),
   ...OPTIONAL_LIVE_CHANNELS.map((c) => c.id),
 ]);
 
@@ -166,6 +174,7 @@ export function loadChannelsFromStorage(): LiveChannel[] {
   const channelMap = new Map<string, LiveChannel>();
   for (const c of FULL_LIVE_CHANNELS) channelMap.set(c.id, { ...c });
   for (const c of TECH_LIVE_CHANNELS) channelMap.set(c.id, { ...c });
+  for (const c of SURF_LIVE_CHANNELS) channelMap.set(c.id, { ...c });
   for (const c of OPTIONAL_LIVE_CHANNELS) channelMap.set(c.id, { ...c });
   for (const c of stored.custom ?? []) {
     if (c.id && c.handle) channelMap.set(c.id, { ...c });
@@ -187,7 +196,7 @@ export function saveChannelsToStorage(channels: LiveChannel[]): void {
   const order = channels.map((c) => c.id);
   const custom = channels.filter((c) => !BUILTIN_IDS.has(c.id));
   const builtinNames = new Map<string, string>();
-  for (const c of [...FULL_LIVE_CHANNELS, ...TECH_LIVE_CHANNELS, ...OPTIONAL_LIVE_CHANNELS]) builtinNames.set(c.id, c.name);
+  for (const c of [...FULL_LIVE_CHANNELS, ...TECH_LIVE_CHANNELS, ...SURF_LIVE_CHANNELS, ...OPTIONAL_LIVE_CHANNELS]) builtinNames.set(c.id, c.name);
   const displayNameOverrides: Record<string, string> = {};
   for (const c of channels) {
     if (builtinNames.has(c.id) && c.name !== builtinNames.get(c.id)) {

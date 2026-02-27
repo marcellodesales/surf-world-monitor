@@ -19,6 +19,14 @@ interface WebcamFeed {
 // Verified YouTube live stream IDs — validated Feb 2026 via title cross-check.
 // IDs may rotate; update when stale.
 const WEBCAM_FEEDS: WebcamFeed[] = [
+  // Surf cams (moved from Live News list)
+  { id: 'north-shore-oahu', city: 'North Shore', country: 'Oahu', region: 'americas', channelHandle: '@northshore-oahu', fallbackVideoId: 'RLtWW7jNGzE' },
+  { id: 'pipeline-cam', city: 'Pipeline', country: 'Oahu', region: 'americas', channelHandle: '@pipeline-cam', fallbackVideoId: 'VI8Wj5EwoRM' },
+  { id: 'rooftop-san-diego', city: 'San Diego', country: 'USA', region: 'americas', channelHandle: '@rooftop-san-diego', fallbackVideoId: 'cvP_F-c2Upw' },
+  { id: 'sao-vicente-brazil', city: 'Sao Vicente', country: 'Brazil', region: 'americas', channelHandle: '@saovicente-brazil', fallbackVideoId: 'xF2aG8bCIh8' },
+  { id: 'oahu-live', city: 'Oahu', country: 'USA', region: 'americas', channelHandle: '@oahu-live', fallbackVideoId: 'd-Gbk7dbMws' },
+  { id: 'maui-visitors', city: 'Maui', country: 'USA', region: 'americas', channelHandle: '@maui-visitors', fallbackVideoId: 'c9DP1MFGXmE' },
+  { id: 'yoga-relaxing', city: 'Yoga Relaxing', country: 'Global', region: 'asia', channelHandle: '@yoga-relaxing', fallbackVideoId: 'rVOCEm3hY30' },
   // Middle East — Jerusalem & Tehran adjacent (conflict hotspots)
   { id: 'jerusalem', city: 'Jerusalem', country: 'Israel', region: 'middle-east', channelHandle: '@TheWesternWall', fallbackVideoId: 'UyduhBUpO7Q' },
   { id: 'tehran', city: 'Tehran', country: 'Iran', region: 'middle-east', channelHandle: '@IranHDCams', fallbackVideoId: '-zGuR1qVKrU' },
@@ -77,7 +85,7 @@ export class LiveWebcamsPanel extends Panel {
     return WEBCAM_FEEDS.filter(f => f.region === this.regionFilter);
   }
 
-  private static readonly ALL_GRID_IDS = ['jerusalem', 'tehran', 'kyiv', 'washington'];
+  private static readonly ALL_GRID_IDS = ['north-shore-oahu', 'pipeline-cam', 'rooftop-san-diego', 'sao-vicente-brazil'];
 
   private get gridFeeds(): WebcamFeed[] {
     if (this.regionFilter === 'all') {
