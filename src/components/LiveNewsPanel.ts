@@ -76,17 +76,10 @@ const TECH_LIVE_CHANNELS: LiveChannel[] = [
 ];
 
 
-// Surf variant: curated surf/beach live channels
+// Surf variant: curated surf/beach live channels (top 2 stay in Live News)
 const SURF_LIVE_CHANNELS: LiveChannel[] = [
-  { id: 'wsl-official', name: 'WSL Official', handle: '@wsl-official', fallbackVideoId: 'hm9iAviOZ20', useFallbackOnly: true },
-  { id: 'north-shore-oahu', name: 'North Shore of Oahu', handle: '@northshore-oahu', fallbackVideoId: 'RLtWW7jNGzE', useFallbackOnly: true },
-  { id: 'pipeline-cam', name: 'Pipeline Cam', handle: '@pipeline-cam', fallbackVideoId: 'VI8Wj5EwoRM', useFallbackOnly: true },
-  { id: 'rooftop-san-diego', name: 'Rooftop Bar San Diego', handle: '@rooftop-san-diego', fallbackVideoId: 'cvP_F-c2Upw', useFallbackOnly: true },
-  { id: 'sao-vicente-brazil', name: 'Sao Vicente, Brazil', handle: '@saovicente-brazil', fallbackVideoId: 'xF2aG8bCIh8', useFallbackOnly: true },
-  { id: 'oahu-live', name: 'Oahu Live', handle: '@oahu-live', fallbackVideoId: 'd-Gbk7dbMws', useFallbackOnly: true },
   { id: 'woohoo-brazil', name: 'WooHoo Brazil', handle: '@woohoo-brazil', fallbackVideoId: 'd0v6ViPp1sw', useFallbackOnly: true },
-  { id: 'maui-visitors', name: 'Maui Visitors', handle: '@maui-visitors', fallbackVideoId: 'c9DP1MFGXmE', useFallbackOnly: true },
-  { id: 'yoga-relaxing', name: 'Yoga Relaxing', handle: '@yoga-relaxing', fallbackVideoId: 'rVOCEm3hY30', useFallbackOnly: true },
+  { id: 'wsl-official', name: 'WSL Official', handle: '@wsl-official', fallbackVideoId: 'hm9iAviOZ20', useFallbackOnly: true },
 ];
 
 // Optional channels users can add from the "Available Channels" tab UI
