@@ -48,7 +48,7 @@ export function updateMetaTagsForStory(meta: StoryMeta): void {
 }
 
 export function resetMetaTags(): void {
-  const defaultTitle = 'SurfHub.tv — Real-Time Global Surf Intelligence...';
+  const defaultTitle = 'SurfHub.tv — Real-Time Global Surf Intelligence';
   const defaultDesc = 'Live global dashboard for surfing conditions, swell forecasts, wind models, beach cams, tsunami alerts, surf pools, travel updates, and surf news. The OSINT network for surfers.';
   
   setMetaTag('title', defaultTitle);
