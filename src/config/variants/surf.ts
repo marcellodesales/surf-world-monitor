@@ -5,6 +5,7 @@ import type { PanelConfig, MapLayers } from '@/types';
 export const SURF_PANELS: Record<string, PanelConfig> = {
   map: { name: 'Surf Break Map', enabled: true, priority: 1 },
   'live-news': { name: 'Surf Headlines', enabled: true, priority: 1 },
+  'live-webcams': { name: 'Surf Live Cams', enabled: true, priority: 1 },
   insights: { name: 'Surf AI Insights', enabled: true, priority: 1 },
   climate: { name: 'Ocean & Climate Alerts', enabled: true, priority: 1 },
   monitors: { name: 'My Surf Monitors', enabled: true, priority: 1 },
