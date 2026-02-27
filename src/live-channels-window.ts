@@ -26,8 +26,8 @@ function customChannelIdFromHandle(handle: string): string {
   return 'custom-' + normalized;
 }
 
-/** Parse YouTube URL into a handle or video ID. Returns null if not a YouTube URL. */
-function parseYouTubeInput(raw: string): { handle: string } | { videoId: string } | null {
+/** Parse YouTube URL into a handle, video ID, or playlist ID. Returns null if not a YouTube URL. */
+function parseYouTubeInput(raw: string): { handle: string } | { videoId: string } | { playlistId: string } | null {
   let url: URL;
   try {
     url = new URL(raw);
@@ -45,6 +45,9 @@ function parseYouTubeInput(raw: string): { handle: string } | { videoId: string 
   // youtube.com/watch?v=VIDEO_ID
   const v = url.searchParams.get('v');
   if (v && /^[A-Za-z0-9_-]{11}$/.test(v)) return { videoId: v };
+  // youtube.com/playlist?list=PLAYLIST_ID
+  const list = url.searchParams.get('list');
+  if (list && /^[A-Za-z0-9_-]{10,40}$/.test(list)) return { playlistId: list };
   // youtube.com/@Handle
   const handleMatch = url.pathname.match(/^\/@([\w.-]{3,30})$/);
   if (handleMatch) return { handle: `@${handleMatch[1]}` };
@@ -371,7 +374,7 @@ export function initLiveChannelsWindow(containerEl?: HTMLElement): void {
           <div class="live-news-manage-add">
             <div class="live-news-manage-add-field">
               <label class="live-news-manage-add-label" for="liveChannelsHandle">${escapeHtml(t('components.liveNews.youtubeHandleOrUrl') ?? 'YouTube handle or URL')}</label>
-              <input type="text" class="live-news-manage-handle" id="liveChannelsHandle" placeholder="@Channel or youtube.com/watch?v=..." />
+              <input type="text" class="live-news-manage-handle" id="liveChannelsHandle" placeholder="@Channel, youtube.com/watch?v=..., or youtube.com/playlist?list=..." />
             </div>
             <div class="live-news-manage-add-field">
               <label class="live-news-manage-add-label" for="liveChannelsName">${escapeHtml(t('components.liveNews.displayName') ?? 'Display name (optional)')}</label>
@@ -414,6 +417,20 @@ export function initLiveChannelsWindow(containerEl?: HTMLElement): void {
     const parsed = parseYouTubeInput(raw);
 
     // Direct video URL (watch?v= or youtu.be/)
+    if (parsed && 'playlistId' in parsed) {
+      const playlistId = parsed.playlistId;
+      const id = `custom-playlist-${playlistId.toLowerCase()}`;
+      if (channels.some((c) => c.id === id)) return;
+
+      const resolvedName = nameInput?.value?.trim() || `Playlist ${playlistId}`;
+      channels.push({ id, name: resolvedName, handle: '@playlist', playlistId, useFallbackOnly: true });
+      saveChannelsToStorage(channels);
+      renderList(listEl);
+      if (handleInput) handleInput.value = '';
+      if (nameInput) nameInput.value = '';
+      return;
+    }
+
     if (parsed && 'videoId' in parsed) {
       const videoId = parsed.videoId;
       const id = `custom-vid-${videoId}`;
