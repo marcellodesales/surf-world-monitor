@@ -14,6 +14,8 @@ type YouTubePlayer = {
   pauseVideo(): void;
   loadVideoById(videoId: string): void;
   cueVideoById(videoId: string): void;
+  loadPlaylist?(playlistId: string): void;
+  cuePlaylist?(playlistId: string): void;
   setPlaybackQuality?(quality: string): void;
   getIframe?(): HTMLIFrameElement;
   getVolume?(): number;
@@ -49,6 +51,8 @@ export interface LiveChannel {
   name: string;
   handle: string; // YouTube channel handle (e.g., @bloomberg)
   fallbackVideoId?: string; // Fallback if no live stream detected
+  playlistId?: string; // Static playlist feed (youtube.com/playlist?list=...)
+  playlistIdByWeekday?: Partial<Record<'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat', string>>;
   videoId?: string; // Dynamically fetched live video ID
   isLive?: boolean;
   useFallbackOnly?: boolean; // Skip auto-detection, always use fallback
@@ -80,6 +84,7 @@ const TECH_LIVE_CHANNELS: LiveChannel[] = [
 const SURF_LIVE_CHANNELS: LiveChannel[] = [
   { id: 'woohoo-brazil', name: 'WooHoo Brazil', handle: '@woohoo-brazil', fallbackVideoId: 'd0v6ViPp1sw', useFallbackOnly: true },
   { id: 'wsl-official', name: 'WSL Official', handle: '@wsl-official', fallbackVideoId: 'hm9iAviOZ20', useFallbackOnly: true },
+  { id: 'stab', name: 'Stab', handle: '@stabmagazine' },
 ];
 
 // Optional channels users can add from the "Available Channels" tab UI
@@ -235,6 +240,7 @@ export class LiveNewsPanel extends Panel {
   // Starts false — try native JS API first; switches to true on Error 153.
   private useDesktopEmbedProxy = false;
   private desktopEmbedIframe: HTMLIFrameElement | null = null;
+  private playlistIframe: HTMLIFrameElement | null = null;
   private desktopEmbedRenderToken = 0;
   private suppressChannelClick = false;
   private boundMessageHandler!: (e: MessageEvent) => void;
@@ -459,6 +465,10 @@ export class LiveNewsPanel extends Panel {
     }
 
     this.desktopEmbedIframe = null;
+    if (this.playlistIframe) {
+      this.playlistIframe.remove();
+      this.playlistIframe = null;
+    }
     this.desktopEmbedRenderToken += 1;
     this.isPlayerReady = false;
     this.currentVideoId = null;
@@ -705,6 +715,16 @@ export class LiveNewsPanel extends Panel {
   }
 
   private async resolveChannelVideo(channel: LiveChannel, forceFallback = false): Promise<void> {
+    const weekday = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][new Date().getDay()] as keyof NonNullable<LiveChannel['playlistIdByWeekday']>;
+    const scheduledPlaylistId = channel.playlistIdByWeekday?.[weekday];
+    if (scheduledPlaylistId) channel.playlistId = scheduledPlaylistId;
+
+    if (channel.playlistId) {
+      channel.videoId = undefined;
+      channel.isLive = true;
+      return;
+    }
+
     const useFallbackVideo = channel.useFallbackOnly || forceFallback;
     const liveVideoId = useFallbackVideo ? null : await fetchLiveVideoId(channel.handle);
     channel.videoId = liveVideoId || channel.fallbackVideoId;
@@ -733,6 +753,11 @@ export class LiveNewsPanel extends Panel {
         btnEl.classList.add('offline');
       }
     });
+
+    if (channel.playlistId) {
+      this.renderPlaylistEmbed(channel.playlistId);
+      return;
+    }
 
     if (!channel.videoId || !/^[\w-]{10,12}$/.test(channel.videoId)) {
       this.showOfflineMessage(channel);
@@ -766,9 +791,7 @@ export class LiveNewsPanel extends Panel {
 
   private showEmbedError(channel: LiveChannel, errorCode: number): void {
     this.destroyPlayer();
-    const watchUrl = channel.videoId
-      ? `https://www.youtube.com/watch?v=${encodeURIComponent(channel.videoId)}`
-      : `https://www.youtube.com/${channel.handle}`;
+    const watchUrl = this.getChannelWatchUrl(channel);
 
     this.content.innerHTML = `
       <div class="live-offline">
@@ -799,6 +822,40 @@ export class LiveNewsPanel extends Panel {
     }
 
     this.content.appendChild(this.playerContainer);
+  }
+
+  private renderPlaylistEmbed(playlistId: string): void {
+    this.destroyPlayer();
+    this.content.innerHTML = '';
+
+    const playerWrap = document.createElement('div');
+    playerWrap.className = 'live-news-player';
+
+    const iframe = document.createElement('iframe');
+    const params = new URLSearchParams({
+      listType: 'playlist',
+      list: playlistId,
+      autoplay: this.isPlaying ? '1' : '0',
+      mute: this.isMuted ? '1' : '0',
+      rel: '0',
+      controls: '1',
+      playsinline: '1',
+    });
+    iframe.src = `https://www.youtube.com/embed/videoseries?${params.toString()}`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.title = `${this.activeChannel.name} playlist`;
+    playerWrap.appendChild(iframe);
+
+    this.playlistIframe = iframe;
+    this.content.appendChild(playerWrap);
+  }
+
+  private getChannelWatchUrl(channel: LiveChannel): string {
+    if (channel.playlistId) return `https://www.youtube.com/playlist?list=${encodeURIComponent(channel.playlistId)}`;
+    if (channel.videoId) return `https://www.youtube.com/watch?v=${encodeURIComponent(channel.videoId)}`;
+    return `https://www.youtube.com/${encodeURIComponent(channel.handle)}`;
   }
 
   private get parentPostMessageOrigin(): string | null {
@@ -1048,9 +1105,7 @@ export class LiveNewsPanel extends Panel {
 
   private showBotCheckPrompt(): void {
     const channel = this.activeChannel;
-    const watchUrl = channel.videoId
-      ? `https://www.youtube.com/watch?v=${encodeURIComponent(channel.videoId)}`
-      : `https://www.youtube.com/${encodeURIComponent(channel.handle)}`;
+    const watchUrl = this.getChannelWatchUrl(channel);
 
     this.destroyPlayer();
     this.content.innerHTML = '';
@@ -1113,6 +1168,8 @@ export class LiveNewsPanel extends Panel {
   }
 
   private syncPlayerState(): void {
+    if (this.activeChannel.playlistId) return;
+
     if (this.useDesktopEmbedProxy) {
       const videoId = this.activeChannel.videoId;
       if (videoId && this.currentVideoId !== videoId) {
