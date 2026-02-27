@@ -143,9 +143,9 @@ export class PanelLayoutManager implements AppModule {
                class="variant-option ${SITE_VARIANT === 'surf' ? 'active' : ''}"
                data-variant="surf"
                ${vTarget('surf')}
-               title="Surf${SITE_VARIANT === 'surf' ? ` ${t('common.currentVariant')}` : ''}">
+               title="${t('header.surf')}${SITE_VARIANT === 'surf' ? ` ${t('common.currentVariant')}` : ''}">
               <span class="variant-icon">🏄</span>
-              <span class="variant-label">Surf</span>
+              <span class="variant-label">${t('header.surf')}</span>
             </a>
             ${SITE_VARIANT === 'happy' ? `<span class="variant-divider"></span>
             <a href="${vHref('happy', 'https://happy.worldmonitor.app')}"
