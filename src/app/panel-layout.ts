@@ -111,6 +111,16 @@ export class PanelLayoutManager implements AppModule {
             const local = this.ctx.isDesktopApp || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
             const vHref = (v: string, prod: string) => local || SITE_VARIANT === v ? '#' : prod;
             const vTarget = (v: string) => !local && SITE_VARIANT !== v ? 'target="_blank" rel="noopener"' : '';
+            if (SITE_VARIANT === 'surf') {
+              return `
+              <a href="#"
+                 class="variant-option active"
+                 data-variant="surf"
+                 title="${t('header.surf')} ${t('common.currentVariant')}">
+                <span class="variant-icon">🏄</span>
+                <span class="variant-label">${t('header.surf')}</span>
+              </a>`;
+            }
             return `
             <a href="${vHref('full', 'https://worldmonitor.app')}"
                class="variant-option ${SITE_VARIANT === 'full' ? 'active' : ''}"
@@ -137,15 +147,6 @@ export class PanelLayoutManager implements AppModule {
                title="${t('header.finance')}${SITE_VARIANT === 'finance' ? ` ${t('common.currentVariant')}` : ''}">
               <span class="variant-icon">📈</span>
               <span class="variant-label">${t('header.finance')}</span>
-            </a>
-            <span class="variant-divider"></span>
-            <a href="${vHref('surf', 'https://surf.worldmonitor.app')}"
-               class="variant-option ${SITE_VARIANT === 'surf' ? 'active' : ''}"
-               data-variant="surf"
-               ${vTarget('surf')}
-               title="${t('header.surf')}${SITE_VARIANT === 'surf' ? ` ${t('common.currentVariant')}` : ''}">
-              <span class="variant-icon">🏄</span>
-              <span class="variant-label">${t('header.surf')}</span>
             </a>
             ${SITE_VARIANT === 'happy' ? `<span class="variant-divider"></span>
             <a href="${vHref('happy', 'https://happy.worldmonitor.app')}"
